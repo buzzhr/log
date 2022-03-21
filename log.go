@@ -2,6 +2,6 @@ package defaultlog
 
 import "log"
 
-func InitLog() {
+func SetDefaultLog() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 }
