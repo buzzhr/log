@@ -57,6 +57,11 @@ func PrintError(err error) {
 		ErrorLogger.Println(err, meta(2))
 	}
 }
+func PrintErrorMsg(msg string, err error) {
+	if err != nil {
+		ErrorLogger.Println(msg, " ", err.Error(), meta(2))
+	}
+}
 func Errorf(format string, v ...interface{}) {
 	ErrorLogger.Printf(fmt.Sprintf(format, v...), meta(2))
 }
