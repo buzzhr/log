@@ -1,8 +1,11 @@
-package defaultlog
+package log
 
 import (
+	"fmt"
 	"log"
 	"os"
+	"runtime"
+	"strings"
 )
 
 var (
@@ -12,32 +15,55 @@ var (
 )
 
 func init() {
-	InfoLogger = log.New(os.Stdout, "INFO: ", log.LstdFlags|log.Lshortfile)
-	WarningLogger = log.New(os.Stderr, "WARNING: ", log.LstdFlags|log.Lshortfile)
-	ErrorLogger = log.New(os.Stderr, "ERROR: ", log.LstdFlags|log.Lshortfile)
+	InfoLogger = log.New(os.Stdout, "INFO: ", log.LstdFlags)
+	WarningLogger = log.New(os.Stderr, "WARNING: ", log.LstdFlags)
+	ErrorLogger = log.New(os.Stderr, "ERROR: ", log.LstdFlags)
 }
 
+func meta(skip int) string {
+	var ok bool
+	_, file, line, ok := runtime.Caller(skip)
+	if !ok {
+		file = "???"
+		line = 0
+	}
+	short := file
+	p := strings.Split(file, "/")
+	if len(p) > 1 {
+		short = p[len(p)-1]
+	}
+	return fmt.Sprintf(" %s:%d", short, line)
+}
 func Info(v ...interface{}) {
-	InfoLogger.Print(v...)
+	v = append(v, meta(2))
+	InfoLogger.Println(v...)
 }
 func Infof(format string, v ...interface{}) {
-	InfoLogger.Printf(format, v...)
+	InfoLogger.Println(fmt.Sprintf(format, v...), meta(2))
 }
 func Warn(v ...interface{}) {
-	WarningLogger.Print(v...)
+	v = append(v, meta(2))
+	WarningLogger.Println(v...)
 }
 func Warnf(format string, v ...interface{}) {
-	WarningLogger.Printf(format, v...)
+	WarningLogger.Printf(fmt.Sprintf(format, v...), meta(2))
 }
 func Error(v ...interface{}) {
+	v = append(v, meta(2))
 	ErrorLogger.Print(v...)
 }
+func PrintError(err error) {
+	if err != nil {
+		ErrorLogger.Println(err, meta(2))
+	}
+}
 func Errorf(format string, v ...interface{}) {
-	ErrorLogger.Printf(format, v...)
+	ErrorLogger.Printf(fmt.Sprintf(format, v...), meta(2))
 }
 func Fatal(v ...interface{}) {
-	ErrorLogger.Fatal(v...)
+	v = append(v, meta(2))
+	ErrorLogger.Fatalln(v...)
 }
 func Fatalf(format string, v ...interface{}) {
-	ErrorLogger.Fatalf(format, v...)
+	ErrorLogger.Fatalf(fmt.Sprintf(format, v...), meta(2))
 }
